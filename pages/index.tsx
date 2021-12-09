@@ -1,6 +1,6 @@
+import * as htmlToImage from "html-to-image";
 import Head from "next/head";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
 
 const MergedImage = ({
@@ -13,6 +13,7 @@ const MergedImage = ({
   className,
   file2,
   file1,
+  id,
 }: any) => {
   const dragStart = ({ target }) => {
     setDragFile(target.src);
@@ -33,9 +34,9 @@ const MergedImage = ({
   };
 
   return (
-    <div className={className}>
+    <div className={className} id={id}>
       <img
-        style={{ width: "100%" }}
+        className="w-full cursor-move"
         onDragStart={dragStart}
         onDragEnter={dragEnter}
         onDragEnd={dragEnd}
@@ -43,7 +44,7 @@ const MergedImage = ({
         alt=""
       />
       <img
-        style={{ width: "100%" }}
+        className="w-full cursor-move"
         onDragStart={dragStart}
         onDragEnter={dragEnter}
         onDragEnd={dragEnd}
@@ -55,7 +56,7 @@ const MergedImage = ({
 };
 
 export default function Home() {
-  const [isReady, setIsReady] = useState(false);
+  const [isDone, setIsDone] = useState(false);
   const [files, setFiles] = useState([]);
   const [dragFile, setDragFile] = useState("");
   const [dragElement, setDragElement] = useState({ src: "" });
@@ -64,6 +65,24 @@ export default function Home() {
   const change = ({ target }: any) => {
     setFiles([...target.files].map((file: any) => URL.createObjectURL(file)));
   };
+
+  useEffect(() => {
+    if (isDone) {
+      setTimeout(
+        () =>
+          document
+            .querySelectorAll("[id^=mergedImage]")
+            .forEach(async (element: any) => {
+              const dataUrl = await htmlToImage.toJpeg(element);
+              const link = document.createElement("a");
+              link.download = element.id + ".jpg";
+              link.href = dataUrl;
+              link.click();
+            }),
+        500
+      );
+    }
+  }, [isDone]);
 
   return (
     <div className={styles.container + " bg-gray-200"}>
@@ -124,7 +143,7 @@ export default function Home() {
 
         <div
           className={
-            isReady
+            isDone
               ? "max-w-5xl mx-auto my-12"
               : "grid gap-2 grid-cols-5 mx-auto"
           }
@@ -133,9 +152,11 @@ export default function Home() {
             if (i % 2 == 0)
               return (
                 <MergedImage
+                  id={"mergedImage" + i}
+                  isDone={isDone}
                   className={
-                    isReady
-                      ? "mb-12 pb-8 border-b-2"
+                    isDone
+                      ? "mb-12 border-b-2 bg-white"
                       : "rounded-lg shadow-lg overflow-hidden"
                   }
                   file1={file}
@@ -151,10 +172,10 @@ export default function Home() {
           })}
         </div>
         <button
-          className="rounded bg-pink-500 text-white px-5 py-2 mt-3"
-          onClick={() => setIsReady(!isReady)}
+          className="rounded bg-pink-500 text-white px-3 py-1 mt-3"
+          onClick={() => setIsDone(!isDone)}
         >
-          Ready
+          Done
         </button>
       </main>
 
