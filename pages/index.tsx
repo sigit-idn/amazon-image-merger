@@ -90,6 +90,9 @@ export default function Home() {
         <title>Generate Amazon Images</title>
         <meta name="description" content="Generate amazon images" />
         <link rel="icon" href="/favicon.ico" />
+        <meta name="apple-mobile-web-app-status-bar" content="#aa7700" />
+        <meta name="theme-color" content="#000" />
+        <link rel="manifest" href="manifest.json" />
       </Head>
 
       <main className={styles.main}>
